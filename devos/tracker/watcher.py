@@ -1,0 +1,65 @@
+import os
+import time
+from pathlib import Path
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from devos.storage.db import execute_query
+from devos.models.events import Event
+import sqlite3
+
+class DevosHandler(FileSystemEventHandler):
+    """Watches your files so you don't have to (but you should, you're the dev)"""
+    
+    def __init__(self, idle_timeout=300):
+        self.idle_timeout = idle_timeout
+        self.last_activity = time.time()
+        self.is_idle = False
+
+    def on_modified(self, event):
+        if event.is_directory:
+            return
+        self.record_activity(event.src_path, "file_edit")
+
+    def get_git_root(self, path):
+        """Finds where the git lives (it's usually in a .git folder)"""
+        path = Path(path).resolve()
+        for parent in [path] + list(path.parents):
+            if (parent / ".git").is_dir():
+                return str(parent)
+        return "Not a Project"
+
+    def record_activity(self, file_path, event_type):
+        now = time.time()
+        
+        # Idle detection logic
+        if self.is_idle:
+            self.log_event("idle_end", "None", "None")
+            self.is_idle = False
+        
+        self.last_activity = now
+        project = self.get_git_root(file_path)
+        self.log_event(event_type, str(file_path), project)
+
+    def log_event(self, event_type, file_path, project):
+        """Writing history, one line at a time"""
+        query = "INSERT INTO events (event_type, file, project) VALUES (?, ?, ?)"
+        execute_query(query, (event_type, file_path, project))
+
+    def check_idle(self):
+        """Checks if you've gone to grab a coffee... or a nap"""
+        if not self.is_idle and (time.time() - self.last_activity > self.idle_timeout):
+            self.is_idle = True
+            self.log_event("idle_start", "None", "None")
+
+def start_watching(path_to_watch, idle_timeout=300):
+    handler = DevosHandler(idle_timeout=idle_timeout)
+    observer = Observer()
+    observer.schedule(handler, path_to_watch, recursive=True)
+    observer.start()
+    try:
+        while True:
+            time.sleep(10)
+            handler.check_idle()
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()

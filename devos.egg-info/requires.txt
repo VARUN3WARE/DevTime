@@ -1,0 +1,5 @@
+psutil
+python-daemon
+rich
+typer[all]
+watchdog

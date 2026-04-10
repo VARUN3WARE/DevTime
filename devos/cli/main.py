@@ -7,6 +7,7 @@ from devos.daemon.manager import start_daemon, stop_daemon, is_running
 from devos.storage.db import execute_query
 from devos.analytics.engine import AnalyticsEngine
 from devos.analytics.insights import IntelligenceLayer
+from devos.utils.mock_data import generate_mock_data
 
 app = typer.Typer(help="DevOS: Your productivity butler :)")
 console = Console()
@@ -111,6 +112,12 @@ def focus():
     """Start a focus session (Pomodoro-style)"""
     console.print("[bold blue]Focus mode activated.[/bold blue] 🍅")
     console.print("DevOS will now track this as a concentrated effort.")
+
+@app.command()
+def mock():
+    """Inject mock data for testing (don't worry, it's fake!)"""
+    generate_mock_data()
+    console.print("[bold green]Mock data injected.[/bold green] Check `devos today` now! :)")
 
 if __name__ == "__main__":
     app()

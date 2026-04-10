@@ -54,17 +54,19 @@ def start_daemon():
         os.setsid()
         os.umask(0)
         
-        # Track the user's projects (defaulting to home directory for discovery)
-        # In practice, usually dev folders are better, but we'll watch a broad path
-        # or have a config. For now, let's watch the current project parent
-        watch_path = str(Path.home() / "Desktop") # Watching Desktop as a default dev area for this user
+        # Track segments from config
+        from devos.utils.config import get_config
+        config = get_config()
+        watch_paths = config.get("watch_paths", [str(Path.home() / "Desktop")])
         
         # Redirect stdout/stderr to a log file
         log_file = Path.home() / ".devos" / "devos.log"
         with open(log_file, "a") as f:
             sys.stdout = f
             sys.stderr = f
-            start_watching(watch_path)
+            # For simplicity, we watch the first path in the list
+            # In a full tool, we'd start multiple observers or one recursive at a common root
+            start_watching(watch_paths[0], idle_timeout=config.get("idle_timeout", 300))
 
 def stop_daemon():
     """Putting the daemon to sleep. Rest well, hero."""

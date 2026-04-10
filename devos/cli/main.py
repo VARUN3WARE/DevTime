@@ -8,6 +8,7 @@ from devos.storage.db import execute_query
 from devos.analytics.engine import AnalyticsEngine
 from devos.analytics.insights import IntelligenceLayer
 from devos.utils.mock_data import generate_mock_data
+from devos.utils.config import get_config, update_config
 
 app = typer.Typer(help="DevOS: Your productivity butler :)")
 console = Console()
@@ -112,6 +113,19 @@ def focus():
     """Start a focus session (Pomodoro-style)"""
     console.print("[bold blue]Focus mode activated.[/bold blue] 🍅")
     console.print("DevOS will now track this as a concentrated effort.")
+
+@app.command()
+def config(key: str = None, value: str = None):
+    """View or update configuration settings"""
+    if key and value:
+        # Simple type conversion for timeout
+        if key == "idle_timeout":
+            value = int(value)
+        update_config(key, value)
+        console.print(f"[bold green]Updated {key} to {value}.[/bold green] :)")
+    else:
+        conf = get_config()
+        console.print(Panel(json.dumps(conf, indent=4), title="⚙️ DevOS Configuration"))
 
 @app.command()
 def mock():

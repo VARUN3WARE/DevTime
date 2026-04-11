@@ -7,6 +7,11 @@ from devos.storage.db import execute_query
 from devos.models.events import Event
 import sqlite3
 
+from devos.storage.db import execute_query
+from devos.models.events import Event
+from devos.utils.config import get_config
+import sqlite3
+
 class DevosHandler(FileSystemEventHandler):
     """Watches your files so you don't have to (but you should, you're the dev)"""
     
@@ -14,10 +19,18 @@ class DevosHandler(FileSystemEventHandler):
         self.idle_timeout = idle_timeout
         self.last_activity = time.time()
         self.is_idle = False
+        self.config = get_config()
 
     def on_modified(self, event):
         if event.is_directory:
             return
+            
+        # Check ignore patterns
+        path_str = str(event.src_path)
+        for pattern in self.config.get("ignore_patterns", []):
+            if pattern in path_str:
+                return
+                
         self.record_activity(event.src_path, "file_edit")
 
     def get_git_root(self, path):

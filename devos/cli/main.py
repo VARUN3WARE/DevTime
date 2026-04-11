@@ -9,6 +9,8 @@ from devos.analytics.engine import AnalyticsEngine
 from devos.analytics.insights import IntelligenceLayer
 from devos.utils.mock_data import generate_mock_data
 from devos.utils.config import get_config, update_config
+from devos.utils.exporter import export_all_data
+from pathlib import Path
 
 app = typer.Typer(help="DevOS: Your productivity butler :)")
 console = Console()
@@ -126,6 +128,25 @@ def config(key: str = None, value: str = None):
     else:
         conf = get_config()
         console.print(Panel(json.dumps(conf, indent=4), title="⚙️ DevOS Configuration"))
+
+@app.command()
+def export(file_path: str = "devos_export.json"):
+    """Export all tracking data to a JSON file"""
+    count = export_all_data(file_path)
+    console.print(f"[bold green]Exported {count} events to {file_path}.[/bold green] Safe travels! :)")
+
+@app.command()
+def logs():
+    """Tail the daemon logs (if they exist)"""
+    log_file = Path.home() / ".devos" / "devos.log"
+    if log_file.exists():
+        with open(log_file, "r") as f:
+            # Show last 20 lines
+            lines = f.readlines()
+            for line in lines[-20:]:
+                console.print(line.strip())
+    else:
+        console.print("[yellow]No logs found yet. Is the daemon running?[/yellow]")
 
 @app.command()
 def mock():

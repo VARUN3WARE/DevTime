@@ -5,7 +5,7 @@ CONFIG_FILE = Path.home() / ".devos" / "config.json"
 
 DEFAULT_CONFIG = {
     "watch_paths": [str(Path.home() / "Desktop")],
-    "ignore_patterns": [".git", "__pycache__", ".venv", "node_modules"],
+    "ignore_patterns": [".git", "__pycache__", ".venv", "node_modules", ".devos"],
     "idle_timeout": 300,
     "theme": "dark"
 }

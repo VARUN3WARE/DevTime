@@ -32,8 +32,18 @@ pip install -e .
 * `devos insights`: AI-powered workflow observations.
 * `devos replay`: Timeline of recent activity.
 * `devos export [FILE]`: Save all data to JSON.
-* `devos config`: View or update settings (timeout, watch paths).
+* `devos config [KEY] [VALUE]`: View or update settings.
+    * Example: `devos config idle_timeout 600` (sets idle timeout to 10 minutes).
+    * Example: `devos config watch_paths '["/home/user/code", "/home/user/projects"]'` (sets multiple watch paths).
+* `devos reset`: Clear all database events and sessions (requires confirmation).
+* `devos export [FILE]`: Save all data to JSON (default: `devos_export.json`).
+* `devos logs`: View recent activity logs from the background daemon.
 * `devos stop`: Safely stop the tracking daemon.
+
+## Configuration Options
+- `watch_paths`: List of directories to monitor for activity.
+- `ignore_patterns`: List of strings (files/folders) to ignore during tracking.
+- `idle_timeout`: Time in seconds before marking activity as "idle" (default: 300).
 
 ## Design Philosophy
 DevOS is built on the principle of minimal overhead and maximum insight. It uses a modular architecture (Daemon, Tracker, Analytics, CLI) following SOLID principles to ensure high maintainability and performance.

@@ -54,7 +54,7 @@ def start_daemon():
         os.setsid()
         os.umask(0)
         
-        # Track segments from config
+        # Track all segments from config
         from devos.utils.config import get_config
         config = get_config()
         watch_paths = config.get("watch_paths", [str(Path.home() / "Desktop")])
@@ -64,9 +64,27 @@ def start_daemon():
         with open(log_file, "a") as f:
             sys.stdout = f
             sys.stderr = f
-            # For simplicity, we watch the first path in the list
-            # In a full tool, we'd start multiple observers or one recursive at a common root
-            start_watching(watch_paths[0], idle_timeout=config.get("idle_timeout", 300))
+            
+            # Start observers for all paths
+            from watchdog.observers import Observer
+            from devos.tracker.watcher import DevosHandler
+            
+            handler = DevosHandler(idle_timeout=config.get("idle_timeout", 300))
+            observer = Observer()
+            
+            for path in watch_paths:
+                if os.path.exists(path):
+                    observer.schedule(handler, path, recursive=True)
+            
+            observer.start()
+            try:
+                while True:
+                    import time
+                    time.sleep(10)
+                    handler.check_idle()
+            except KeyboardInterrupt:
+                observer.stop()
+            observer.join()
 
 def stop_daemon():
     """Putting the daemon to sleep. Rest well, hero."""

@@ -117,8 +117,9 @@ def focus():
     console.print("DevOS will now track this as a concentrated effort.")
 
 @app.command()
-def config(key: str = None, value: str = None):
-    """View or update configuration settings"""
+def config(key: str = typer.Argument(None, help="The config key to update"), 
+           value: str = typer.Argument(None, help="The new value for the key")):
+    """View or update configuration settings (e.g., config idle_timeout 600)"""
     if key and value:
         # Simple type conversion for timeout
         if key == "idle_timeout":
@@ -128,6 +129,17 @@ def config(key: str = None, value: str = None):
     else:
         conf = get_config()
         console.print(Panel(json.dumps(conf, indent=4), title="⚙️ DevOS Configuration"))
+
+@app.command()
+def reset():
+    """Clear all tracking data (Fresh start!)"""
+    confirm = typer.confirm("Are you sure you want to delete all your history? This cannot be undone! :(")
+    if confirm:
+        execute_query("DELETE FROM events")
+        execute_query("DELETE FROM sessions")
+        console.print("[bold red]Database cleared.[/bold red] A clean slate for a new you. :)")
+    else:
+        console.print("Cancelled. Your history is safe.")
 
 @app.command()
 def export(file_path: str = "devos_export.json"):

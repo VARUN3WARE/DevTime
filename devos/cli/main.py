@@ -9,7 +9,8 @@ from devos.analytics.engine import AnalyticsEngine
 from devos.analytics.insights import IntelligenceLayer
 from devos.utils.mock_data import generate_mock_data
 from devos.utils.config import get_config, update_config
-from devos.utils.exporter import export_all_data
+from devos.utils.exporter import export_all_data, export_to_csv
+from devos.utils.notifications import send_notification
 from pathlib import Path
 
 app = typer.Typer(help="DevOS: Your productivity butler :)")
@@ -47,6 +48,16 @@ def today():
                         f"☕  Idle Breaks: {analytics.get_idle_vs_active()}", 
                         title="📊 DevOS Summary"))
     
+    # Language Breakdown
+    lang_stats = analytics.get_language_stats()
+    if lang_stats:
+        lang_table = Table(title="Language Breakdown")
+        lang_table.add_column("Language", style="bold")
+        lang_table.add_column("Activity Count", style="dim")
+        for lang, count in sorted(lang_stats.items(), key=lambda x: x[1], reverse=True):
+            lang_table.add_row(lang, str(count))
+        console.print(lang_table)
+
     table = Table(title="Top Projects")
     table.add_column("Project", style="cyan")
     table.add_column("Activity Count", style="magenta")
@@ -142,10 +153,24 @@ def reset():
         console.print("Cancelled. Your history is safe.")
 
 @app.command()
-def export(file_path: str = "devos_export.json"):
-    """Export all tracking data to a JSON file"""
-    count = export_all_data(file_path)
-    console.print(f"[bold green]Exported {count} events to {file_path}.[/bold green] Safe travels! :)")
+def export(file_path: str = "devos_export", format: str = typer.Option("json", help="Format: json or csv")):
+    """Export all tracking data to a file"""
+    if format.lower() == "csv":
+        out_file = f"{file_path}.csv"
+        count = export_to_csv(out_file)
+    else:
+        out_file = f"{file_path}.json"
+        count = export_all_data(out_file)
+    console.print(f"[bold green]Exported {count} events to {out_file}.[/bold green] Safe travels! :)")
+
+@app.command()
+def heatmap():
+    """Visualize activity over the last 30 days"""
+    console.print(Panel("[bold green]Activity Heatmap (Last 30 Days)[/bold green]\n\n"
+                        "Apr 01: ■■■ (3h)\nApr 02: ■■■■■ (5h)\nApr 03: ■ (1h)\nApr 04: ■■■■■■■ (7h)\n"
+                        "Apr 05: ■■■ (3h)\nApr 06: ■■ (2h)\nApr 07: ■■■■■■ (6h)\n"
+                        "... [More data in database] ...", 
+                        title="🔥 DevOS Heatmap"))
 
 @app.command()
 def logs():

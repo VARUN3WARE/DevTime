@@ -1,4 +1,5 @@
 import json
+import csv
 from devos.storage.db import execute_query
 
 def export_all_data(output_path):
@@ -22,5 +23,16 @@ def export_all_data(output_path):
     
     with open(output_path, "w") as f:
         json.dump(data, f, indent=4)
+        
+    return len(events)
+
+def export_to_csv(output_path):
+    """Sometimes you just need a spreadsheet... :)"""
+    events = execute_query("SELECT * FROM events")
+    
+    with open(output_path, "w", newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(["ID", "Timestamp", "File", "Project", "Type"])
+        writer.writerows(events)
         
     return len(events)

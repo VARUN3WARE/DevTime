@@ -84,3 +84,15 @@ class AnalyticsEngine:
         rows = execute_query(query)
         idle_starts = len([r for r in rows if r[0] == 'idle_start'])
         return idle_starts
+
+    def get_language_stats(self):
+        """Breaking down your day by your digital dialects"""
+        query = "SELECT file FROM events WHERE file != 'None' AND DATE(timestamp) = DATE('now')"
+        rows = execute_query(query)
+        stats = {}
+        for row in rows:
+            ext = row[0].split('.')[-1] if '.' in row[0] else 'Unknown'
+            # Cleanup common long extensions
+            if '/' in ext: ext = 'Other'
+            stats[ext] = stats.get(ext, 0) + 1
+        return stats

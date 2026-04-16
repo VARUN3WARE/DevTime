@@ -82,6 +82,7 @@ def start_daemon():
                     import time
                     time.sleep(10)
                     handler.check_idle()
+                    handler.check_alerts()
             except KeyboardInterrupt:
                 observer.stop()
             observer.join()

@@ -1,5 +1,6 @@
 import os
 import time
+import subprocess
 from pathlib import Path
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -42,7 +43,17 @@ class DevosHandler(FileSystemEventHandler):
         path = Path(path).resolve()
         for parent in [path] + list(path.parents):
             if (parent / ".git").is_dir():
-                return str(parent)
+                try:
+                    result = subprocess.run(
+                        ["git", "-C", str(parent), "branch", "--show-current"],
+                        capture_output=True, text=True, check=True
+                    )
+                    branch = result.stdout.strip()
+                    if branch:
+                        return f"{parent} ({branch})"
+                    return str(parent)
+                except Exception:
+                    return str(parent)
         return "Not a Project"
 
     def record_activity(self, file_path, event_type):

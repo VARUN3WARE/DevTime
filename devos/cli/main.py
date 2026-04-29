@@ -1,8 +1,11 @@
 import os
+import time
+import json
 import typer
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
+from rich.live import Live
 from devos.daemon.manager import start_daemon, stop_daemon, is_running
 from devos.storage.db import execute_query
 from devos.analytics.engine import AnalyticsEngine
@@ -126,6 +129,26 @@ def focus():
     """Start a focus session (Pomodoro-style)"""
     console.print("[bold blue]Focus mode activated.[/bold blue] 🍅")
     console.print("DevOS will now track this as a concentrated effort.")
+
+@app.command()
+def monitor():
+    """Live updating terminal dashboard of your session"""
+    with Live(refresh_per_second=1) as live:
+        try:
+            while True:
+                total_time = analytics.get_today_total_time()
+                switches = analytics.get_context_switches()
+                
+                content = Panel(f"[bold blue]Live Session Monitor[/bold blue]\n\n"
+                                f"⏱️  Total Time: {total_time:.2f}h\n"
+                                f"🔄  Context Switches: {switches}\n"
+                                f"☕  Idle Breaks: {analytics.get_idle_vs_active()}\n\n"
+                                "[dim]Press Ctrl+C to exit[/dim]", 
+                                title="📡 DevOS Monitor")
+                live.update(content)
+                time.sleep(1)
+        except KeyboardInterrupt:
+            pass
 
 @app.command()
 def config(key: str = typer.Argument(None, help="The config key to update"), 

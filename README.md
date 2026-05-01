@@ -5,10 +5,62 @@ DevOS is a lightweight, local-first developer productivity tool that automatical
 ## Core Features
 * **Background Tracking**: Silently monitors file edits and project switches using Git root detection.
 * **Idle Detection**: Automatically pauses tracking when you step away.
-* **Flow Analysis**: Calculates "Flow Scores" based on uninterrupted deep work.
+* **Flow Analysis**: Calculates "Flow Scores" based onw uninterrupted deep work.
 * **Intelligent Insights**: Detects context switching, stuck patterns, and peak productivity hours.
 * **Timeline Replay**: Visualize your day with a step-by-step history of your work.
 * **Exportable Data**: Take your data anywhere with JSON export support.
+
+## 📸 Previews in Action
+
+### Daily Dashboard (`devos today`)
+```text
+╭────────────────────────────── 📊 DevOS Summary ──────────────────────────────╮
+│ Today's Coding Stats                                                         │
+│                                                                              │
+│ ⏱️  Total Time: 5.42h                                                        │
+│ 🔄  Context Switches: 86                                                     │
+│ ☕  Idle Breaks: 10                                                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+     Language Breakdown      
+┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Language ┃ Activity Count ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ py       │ 100            │
+│ md       │ 2              │
+└──────────┴────────────────┘
+            Top Projects             
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Project          ┃ Activity Count ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ DevTime          │ 2894           │
+│ DevOS            │ 88             │
+└──────────────────┴────────────────┘
+```
+
+### Productivity Heatmap (`devos heatmap`)
+```text
+╭────────────────────────────── 🔥 DevOS Heatmap ──────────────────────────────╮
+│ Activity Heatmap (Last 30 Days)                                              │
+│                                                                              │
+│ Apr 01: ■■■ (3h)                                                             │
+│ Apr 02: ■■■■■ (5h)                                                           │
+│ Apr 03: ■ (1h)                                                               │
+│ Apr 04: ■■■■■■■ (7h)                                                         │
+│ Apr 05: ■■■ (3h)                                                             │
+│ Apr 06: ■■ (2h)                                                              │
+│ Apr 07: ■■■■■■ (6h)                                                          │
+│ ... [More data in database] ...                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+### AI Workflow Insights (`devos insights`)
+```text
+╭───────────────────────────── 💡 DevOS Insights ──────────────────────────────╮
+│ ⚠️ High context switching detected. Try to focus on one project at a time.   │
+│ 🔥 Your peak productivity time is around 10:00                               │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Flow Score: 85% :)
+```
 
 ## Installation
 ```bash
